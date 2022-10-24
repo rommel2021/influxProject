@@ -12,16 +12,18 @@ public class InsertController {
     @Resource
     InsertService insertService;
 
+    /**
+     * 通过一个插入语句来加入数据项
+     * @param query influxdb的一条插入语句
+     * @return 插入成功还是失败
+     */
     @PostMapping("/query")
-    public CommonResult insertWithQuery(@RequestParam String data){
-        int result = insertService.insert(data);
-        if (result == 1)
-            return new CommonResult().success().code(200).message("success to insert data");
-        return new CommonResult().fail().code(404).message("fail to insert");
+    public CommonResult insertWithQuery(@RequestParam String query){
+        int status = insertService.insert(query);
+        if (status == 200)
+            return new CommonResult().success().code(status).message("success to insert data");
+        return new CommonResult().fail().code(status).message("fail to insert");
     }
 
-    @GetMapping("/")
-    public CommonResult getData(){
 
-    }
 }
