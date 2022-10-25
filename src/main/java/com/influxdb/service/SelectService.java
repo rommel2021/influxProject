@@ -1,11 +1,11 @@
 package com.influxdb.service;
 
-import com.influxdb.entity.Data;
+import com.influxdb.vo.InfluxData;
 
 import java.util.List;
 
 public interface SelectService {
-    Data selectWithDate(String date);
+    List<InfluxData> selectWithDate(String duration, String measurement);
 
-    Data selectByTag(List<String> tag);
+    InfluxData selectByTag(List<String> tag);
 }
