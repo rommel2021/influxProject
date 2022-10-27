@@ -3,7 +3,7 @@ package com.influxdb.exceptions;
 public enum BaseExceptionEnum {
     DURATION_NOT_MATCH(14001, "duration is illegal!"),
 
-    PRIMARY_EMAIL_REPEATED(14002, "PrimaryEmail is existed!");
+    TAG_LACK_EQUAL(14002, "tag format is incorrect,it should contains '='");
     private Integer code;
 
     private String msg;

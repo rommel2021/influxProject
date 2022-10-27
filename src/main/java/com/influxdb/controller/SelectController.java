@@ -27,9 +27,15 @@ public class SelectController {
         return new CommonResult().success().data(data);
     }
 
+    /**
+     * 这里的tag传参数的时候只需要在字符串之间加逗号就可以
+     * @param tag
+     * @param measurement
+     * @return
+     */
     @GetMapping("/tag")
-    public CommonResult selectWithTag(@RequestParam List<String> tag){
-
-        return new CommonResult();
+    public CommonResult selectWithTag(@RequestParam List<String> tag, @RequestParam String measurement){
+        List<InfluxData> influxData = selectService.selectByTag(tag, measurement);
+        return new CommonResult().success().data(influxData);
     }
 }

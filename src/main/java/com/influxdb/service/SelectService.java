@@ -7,5 +7,5 @@ import java.util.List;
 public interface SelectService {
     List<InfluxData> selectWithDate(String duration, String measurement);
 
-    InfluxData selectByTag(List<String> tag);
+    List<InfluxData> selectByTag(List<String> tag, String measurement);
 }
