@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @RestController
@@ -34,8 +35,19 @@ public class SelectController {
      * @return
      */
     @GetMapping("/tag")
-    public CommonResult selectWithTag(@RequestParam List<String> tag, @RequestParam String measurement){
+    public CommonResult<List<InfluxData>> selectWithTag(@RequestParam List<String> tag, @RequestParam String measurement){
         List<InfluxData> influxData = selectService.selectByTag(tag, measurement);
         return new CommonResult().success().data(influxData);
+    }
+
+    /**
+     * 根据tag导出csv格式文件
+     * @param tag 标签
+     * @param measurement 表名
+     */
+    @GetMapping("/getCsv")
+    public CommonResult getCsvWithDate(@RequestParam List<String> tag, @RequestParam String measurement) {
+        String data = selectService.exportCsvByTags(tag, measurement);
+        return new CommonResult<String>().success().data(data);
     }
 }

@@ -8,6 +8,9 @@ import com.influxdb.client.domain.BucketRetentionRules;
 import com.influxdb.client.domain.Label;
 import com.influxdb.query.FluxRecord;
 import com.influxdb.query.FluxTable;
+import com.influxdb.vo.InfluxData;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +20,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 
+import java.io.*;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -76,6 +84,84 @@ public class selectTest {
         List<Label> labels = bucketsApi.getLabels(mydb);
         for(Label label:labels){
             System.out.println(label.getName());
+        }
+    }
+
+    @Test
+    public void exportCsvTest1() throws Exception {
+        byte[] bytes = new byte[0];
+        ArrayList<Object[]> cellList = new ArrayList<>();
+        Object[] string1 = {"hello","ccc"};
+        cellList.add(string1);
+        // 创建一个字节输出流
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(byteArrayOutputStream, "UTF-8");
+
+        BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
+        CSVPrinter csvPrinter = new CSVPrinter(bufferedWriter, CSVFormat.DEFAULT);
+        csvPrinter.printRecords(cellList);
+        csvPrinter.flush();
+        String s = byteArrayOutputStream.toString("UTF-8");
+        System.out.println(s);
+        bytes = byteArrayOutputStream.toString("UTF-8").getBytes();
+        if (csvPrinter != null) {
+            csvPrinter.close();
+        }
+        bufferedWriter.close();
+        outputStreamWriter.close();
+        byteArrayOutputStream.close();
+
+        System.out.println(Arrays.toString(bytes));
+    }
+
+    @Test
+    public void exportCsvTest2()  {
+        ArrayList<String> strings = new ArrayList<>();
+        strings.add("qqq");//每一个strings是一行
+        strings.add("aaa");
+        ArrayList<InfluxData> dataList = new ArrayList<>();
+        
+
+        if (strings!=null && strings.size() > 0){
+            // 表格头
+            String[] headArr = new String[]{"PointId", "X", "Y"};
+            //CSV文件路径及名称
+            LocalDateTime localDateTime = LocalDateTime.now();
+            DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+            String filePath = "D:\\java"; //CSV文件路径
+            String fileName = "CSV_"+ df.format(localDateTime) +".csv";//CSV文件名称
+            File csvFile = null;
+            BufferedWriter csvWriter = null;
+            try {
+                csvFile = new File(filePath + File.separator + fileName);
+                File parent = csvFile.getParentFile();
+                if (parent != null && !parent.exists()) {
+                    parent.mkdirs();
+                }
+                csvFile.createNewFile();
+
+                // GB2312使正确读取分隔符","
+                csvWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile), "GB2312"), 1024);
+
+                // 写入文件头部标题行
+                csvWriter.write(String.join(",", headArr));
+                csvWriter.newLine();
+
+                // 写入文件内容
+                for (String point : strings) {
+                    csvWriter.write(point);
+                    csvWriter.newLine();
+                }
+                csvWriter.flush();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    csvWriter.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }

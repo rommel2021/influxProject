@@ -18,4 +18,8 @@ fields则往往会让人比较迷惑：UI界面中并没有fields，而一个fie
     .time(Instant.now(),WritePrecision.MS);
     writeApi.writePoint(gpu);`
 # 延伸阅读
+# 莫名其妙的错误
+在某次运行的时候，忽然抛出一堆看起来和代码无关的错误，error最终nested的是一个kotlin有关的异常
+去网上搜索，结果显示的都是和okHttp相关，而且kotlin不是安卓开发的吗，为什么会出现在这里
+最终解决方案是导入kotlin-stdlib的依赖，就莫名其妙没有错误了
 

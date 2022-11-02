@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 
 
 @Configuration
-@ComponentScan
+@ComponentScan("com.influxdb.service")
 public class InfluxConfig {
     @Value("${influx.url}")
     private String url;

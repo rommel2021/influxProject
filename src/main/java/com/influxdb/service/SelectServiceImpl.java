@@ -1,6 +1,5 @@
 package com.influxdb.service;
 
-import com.influxdb.client.BucketsApi;
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.QueryApi;
 import com.influxdb.constants.DataAttributeConstants;
@@ -10,12 +9,17 @@ import com.influxdb.exceptions.BaseExceptionEnum;
 import com.influxdb.query.FluxRecord;
 import com.influxdb.query.FluxTable;
 import com.influxdb.vo.InfluxData;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.sql.Array;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
 
@@ -90,6 +94,43 @@ public class SelectServiceImpl implements SelectService {
         QueryApi queryApi = influxDBClient.getQueryApi();
         List<FluxTable> fluxTables = queryApi.query(query.toString());
         return transferToDataList(fluxTables);
+    }
+
+    /**
+     * 根据标签导出到csv格式
+     * @param tag 标签
+     * @param measurement 表名
+     * @create 2022-11-02
+     */
+    @Override
+    public String exportCsvByTags(List<String> tag, String measurement) {
+        HashMap<String, List<String>> tagsMap = new HashMap<>();
+        for (String str : tag) {
+            //check tag format
+            if (!str.contains("=")) {
+                throw new BaseException(BaseExceptionEnum.TAG_LACK_EQUAL);
+            }
+            String[] keyAndValue = str.split("=");
+            List<String> values = Arrays.asList(keyAndValue[1].split("/"));
+            tagsMap.put(keyAndValue[0], values);
+        }
+        StringBuilder query = new StringBuilder();
+        query.append("from(bucket: \"" + bucket + "\")\n")
+                .append("  |> range(start: -30d)\n")
+                .append("  |> filter(fn: (r) => r[\"_measurement\"] == \"" + measurement + "\")\n");
+        for (Map.Entry entry:tagsMap.entrySet()){
+            String tagName = (String) entry.getKey();
+            List<String> tagValue = (List<String>) entry.getValue();
+            query.append("  |> filter(fn: (r) => r[\""+tagName+"\"] == \""+tagValue.get(0)+"\"");
+            for(int i = 1;i<tagValue.size();i++){
+                query.append(" or r[\""+tagName+"\"] == \""+tagValue.get(i)+"\"");
+            }
+            query.append(")\n");
+        }
+        query.append("  |> yield(name: \"mean\")");
+        QueryApi queryApi = influxDBClient.getQueryApi();
+        String csvData = queryApi.queryRaw(query.toString());
+        return csvData;
     }
 
     private ArrayList<InfluxData> transferToDataList(List<FluxTable> fluxTables){

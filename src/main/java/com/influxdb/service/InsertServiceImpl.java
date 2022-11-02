@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-@Service
+@Service("insertService")
 @Slf4j
 public class InsertServiceImpl implements InsertService {
     @Autowired

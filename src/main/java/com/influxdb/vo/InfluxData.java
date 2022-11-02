@@ -32,4 +32,8 @@ public class InfluxData {
 
     private Map<String, String> tags;
 
+    public String[] toStringArray(){
+        return null;
+    }
+
 }
