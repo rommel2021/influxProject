@@ -2,6 +2,8 @@ package com.influxdb.entity;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.influxdb.utils.CommonResultSerializer;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
 
@@ -16,14 +18,19 @@ import java.util.Map;
  */
 @JsonSerialize(using = CommonResultSerializer.class)
 @Data
+@ApiModel("common result")
 public class CommonResult<T> {
 
+    @ApiModelProperty("status code,such as 404,200")
     private int code;
 
+    @ApiModelProperty("alert message for user,such as success and fail")
     private String message;
 
+    @ApiModelProperty("data that user want,such as InfluxData")
     private T data;
 
+    @ApiModelProperty("this has no particular usage yet")
     private Map<String, Object> resultMap = new HashMap<>();
 
     public CommonResult<T> code(HttpStatus status) {

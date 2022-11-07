@@ -78,15 +78,17 @@ public class SelectServiceImpl implements SelectService {
         }
 
         StringBuilder query = new StringBuilder();
-        query.append("from(bucket: \"" + bucket + "\")\n")
+        query.append("from(bucket: \"").append(bucket).append("\")\n")
                 .append("  |> range(start: -30d)\n")
-                .append("  |> filter(fn: (r) => r[\"_measurement\"] == \"" + measurement + "\")\n");
+                .append("  |> filter(fn: (r) => r[\"_measurement\"] == \"")
+                .append(measurement).append("\")\n");
         for (Map.Entry entry:tagsMap.entrySet()){
             String tagName = (String) entry.getKey();
             List<String> tagValue = (List<String>) entry.getValue();
-            query.append("  |> filter(fn: (r) => r[\""+tagName+"\"] == \""+tagValue.get(0)+"\"");
+            query.append("  |> filter(fn: (r) => r[\"").append(tagName)
+                    .append("\"] == \"").append(tagValue.get(0)).append("\"");
             for(int i = 1;i<tagValue.size();i++){
-                query.append(" or r[\""+tagName+"\"] == \""+tagValue.get(i)+"\"");
+                query.append(" or r[\"").append(tagName).append("\"] == \"").append(tagValue.get(i)).append("\"");
             }
             query.append(")\n");
         }
@@ -115,9 +117,10 @@ public class SelectServiceImpl implements SelectService {
             tagsMap.put(keyAndValue[0], values);
         }
         StringBuilder query = new StringBuilder();
-        query.append("from(bucket: \"" + bucket + "\")\n")
+        query.append("from(bucket: \"").append(bucket).append("\")\n")
                 .append("  |> range(start: -30d)\n")
-                .append("  |> filter(fn: (r) => r[\"_measurement\"] == \"" + measurement + "\")\n");
+                .append("  |> filter(fn: (r) => r[\"_measurement\"] == \"")
+                .append(measurement).append("\")\n");
         for (Map.Entry entry:tagsMap.entrySet()){
             String tagName = (String) entry.getKey();
             List<String> tagValue = (List<String>) entry.getValue();
